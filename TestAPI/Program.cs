@@ -9,6 +9,8 @@ namespace TestAPI
 {
     public static class ElasticSearch
     {
+        private static HttpClient client;
+
         public static string ToJsonString(this JsonDocument jdoc)
         {
             using (var stream = new MemoryStream())
@@ -21,22 +23,25 @@ namespace TestAPI
         }
         public static HttpClient getClient()
         {
-            var handler = new HttpClientHandler();
-            handler.ClientCertificateOptions = ClientCertificateOption.Manual;
-            handler.ServerCertificateCustomValidationCallback =
-                (httpRequestMessage, cert, cetChain, policyErrors) =>
-                {
-                    return true;
-                };
+            if (ElasticSearch.client is null)
+            {
+                var handler = new HttpClientHandler();
+                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                handler.ServerCertificateCustomValidationCallback =
+                    (httpRequestMessage, cert, cetChain, policyErrors) =>
+                    {
+                        return true;
+                    };
 
-            var client = new HttpClient(handler);
-            var byteArray = Encoding.ASCII.GetBytes("elastic:GSbLU=X63NL6YRUGDVWF");
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(byteArray));
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type",
-                "application/json; charset=utf-8");
-            return client;
+                ElasticSearch.client = new HttpClient(handler);
+                var byteArray = Encoding.ASCII.GetBytes("elastic:GSbLU=X63NL6YRUGDVWF");
+                ElasticSearch.client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(byteArray));
+                ElasticSearch.client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type",
+                    "application/json; charset=utf-8");
+            }
+            return ElasticSearch.client;
         }
         public static async System.Threading.Tasks.Task<string> postDataAsync(JsonDocument doc)
         {
