@@ -10,6 +10,7 @@ namespace TestAPI
     public static class ElasticSearch
     {
         private static HttpClient client;
+        private static string IP = "https://52.0.7.90:9200";
 
         public static string ToJsonString(this JsonDocument jdoc)
         {
@@ -50,7 +51,7 @@ namespace TestAPI
 
 
             var response = await ElasticSearch.getClient().PostAsync("" +
-                 "https://52.0.7.90:9200/logs-my_app-default/_doc?pretty",
+                 $"{ElasticSearch.IP}/logs-my_app-default/_doc?pretty",
                  content);
 
             var responseString = await response.Content.ReadAsStringAsync();
